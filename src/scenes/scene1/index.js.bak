@@ -1,0 +1,882 @@
+import * as THREE from "three";
+import * as utils from "../../utils";
+import { Pane } from "tweakpane";
+import { Electron } from "../scene0/Electron";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import posx from "../../images/clouds1/clouds1_east.bmp";
+import negx from "../../images/clouds1/clouds1_west.bmp";
+import posy from "../../images/clouds1/clouds1_up.bmp";
+import negy from "../../images/clouds1/clouds1_down.bmp";
+import posz from "../../images/clouds1/clouds1_north.bmp";
+import negz from "../../images/clouds1/clouds1_south.bmp";
+
+let w = 0;
+let t = 0;
+let theta = 0;
+let paddingX = 1.6;
+let paddingY = 1.3;
+let length = 8;
+let width = 6;
+let configs = {
+  showField: true,
+  hidePlane: false,
+  theta: 0,
+  b: 1,
+  i: 1,
+  // l: 6.6,
+  running: false,
+};
+
+export const renderScene = () => {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(
+    60,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  // renderer.physicallyCorrectLights = true;
+  document.body.appendChild(renderer.domElement);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  camera.position.z = 5;
+  const alight = new THREE.AmbientLight("grey");
+  const dlight = new THREE.DirectionalLight("white");
+  dlight.position.set(3, 0, 10);
+  // const sky = utils.createSky(renderer);
+  const loader = new THREE.CubeTextureLoader();
+  const texture = loader.load([posx, negx, posy, negy, posz, negz]);
+  scene.background = texture;
+
+  const mainPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(6, 8, 10, 10),
+    new THREE.MeshBasicMaterial({
+      color: "grey",
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.2,
+    })
+  );
+
+  const leftSide = utils.createWire(0.2, 0.2, length + 0.36);
+  leftSide.position.set(-width / 2.0, 0, 0);
+
+  const rightSide = utils.createWire(0.2, 0.2, length + 0.36);
+  rightSide.position.set(width / 2.0, 0, 0);
+
+  const bottomSide = utils.createWire(0.2, 0.2, width);
+  bottomSide.position.set(0, -length / 2.0, 0);
+  bottomSide.rotation.z = Math.PI / 2;
+
+  const topSide = utils.createWire(0.2, 0.2, width);
+  topSide.position.set(0, length / 2.0, 0);
+  topSide.rotation.z = Math.PI / 2;
+
+  let leftSideElectrons = [];
+  for (let i = 0; i < 12; i++) {
+    const e = new Electron(0.1, "red", false, "down", configs.i * 0.05, length);
+    e.getMesh().position.y = -3 + i * 0.8;
+    leftSideElectrons.push(e);
+    leftSide.add(e.getMesh());
+  }
+
+  let rightSideElectrons = [];
+  for (let i = 0; i < 12; i++) {
+    const e = new Electron(0.1, "red", false, "up", configs.i * 0.05, length);
+    e.getMesh().position.y = -3 + i * 0.8;
+    rightSideElectrons.push(e);
+    rightSide.add(e.getMesh());
+  }
+
+  let topSideElectrons = [];
+  for (let i = 0; i < 8; i++) {
+    const e = new Electron(0.1, "red", false, "up", configs.i * 0.05, width);
+    e.getMesh().position.y = -3 + i * 0.8;
+    topSideElectrons.push(e);
+    topSide.add(e.getMesh());
+  }
+
+  let bottomSideElectrons = [];
+  for (let i = 0; i < 8; i++) {
+    const e = new Electron(0.1, "red", false, "down", configs.i * 0.05, width);
+    e.getMesh().position.y = -3 + i * 0.8;
+    bottomSideElectrons.push(e);
+    bottomSide.add(e.getMesh());
+  }
+
+  let fieldLines = [];
+  for (let i = 0; i < 6; i++) {
+    for (let j = 0; j < 6; j++) {
+      let a = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, 0, 1),
+        configs.b,
+        0.02,
+        "white"
+      );
+      a.position.set(-3 + i * 1.2, -3 + j * 1.2, -0.4);
+      fieldLines.push(a);
+      scene.add(a);
+    }
+  }
+
+  const fieldText = utils.createText(
+    "B",
+    new THREE.Vector3(0, 0, fieldLines[0].children[1].position.z + 1),
+    1,
+    "white"
+  );
+  scene.add(fieldText);
+  // fieldText.position.copy(
+  //   fieldLines[fieldLines.length / 4].children[1].position
+  // );
+  // fieldLines[fieldLines.length / 4].add(fieldText);
+
+  let bil = configs.b * configs.i * length * 0.2;
+  let bib = configs.b * configs.i * width * 0.2;
+
+  // const forceOnLeftSide = utils.createArrow(
+  //   new THREE.Vector3(0, 0, 0),
+  //   new THREE.Vector3(-1, 0, 0),
+  //   bil,
+  //   0.02,
+  //   "black"
+  // );
+
+  const forceOnLeftSide = utils.createArrow(
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(-1, 0, 0),
+    bil,
+    0.02,
+    "green"
+  );
+
+  const forceOnRightSide = utils.createArrow(
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(1, 0, 0),
+    bil,
+    0.02,
+    "green"
+  );
+
+  const forceOnTopSide = utils.createArrow(
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(1, 0, 0),
+    bib,
+    0.02,
+    "black"
+  );
+  // console.log(leftSideElectrons[3]);
+
+  const forceOnBottomSide = utils.createArrow(
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(-1, 0, 0),
+    bib,
+    0.02,
+    "black"
+  );
+
+  const textLeft = utils.createText(
+    `${(bil * 5).toFixed(2)}N`,
+    new THREE.Vector3(0, 2.5, 0),
+    0.6,
+    "yellow"
+  );
+  textLeft.position.copy(
+    forceOnLeftSide.children[1].position.clone().multiplyScalar(paddingX)
+  );
+  forceOnLeftSide.add(textLeft);
+
+  const textRight = utils.createText(
+    `${(bil * 5).toFixed(2)}N`,
+    new THREE.Vector3(0, 2.5, 0),
+    0.6,
+    "yellow"
+  );
+  textRight.position.copy(
+    forceOnRightSide.children[1].position.clone().multiplyScalar(paddingX)
+  );
+  forceOnRightSide.add(textRight);
+
+  const textTop = utils.createText(
+    `${(bib * 5).toFixed(2)}N`,
+    new THREE.Vector3(0, 2.5, 0),
+    0.6,
+    "yellow"
+  );
+  textTop.position.copy(
+    forceOnTopSide.children[1].position.clone().multiplyScalar(paddingY)
+  );
+  forceOnTopSide.add(textTop);
+
+  const textBottom = utils.createText(
+    `${(bib * 5).toFixed(2)}N`,
+    new THREE.Vector3(0, 2.5, 0),
+    0.6,
+    "yellow"
+  );
+  textBottom.position.copy(
+    forceOnBottomSide.children[1].position.clone().multiplyScalar(paddingY)
+  );
+  forceOnBottomSide.add(textBottom);
+
+  leftSide.add(forceOnLeftSide);
+  rightSide.add(forceOnRightSide);
+  // console.log(forceOnLeftSide);
+  // scene.add(forceOnLeftSide, forceOnRightSide);
+  topSide.add(forceOnTopSide);
+  bottomSide.add(forceOnBottomSide);
+
+  mainPlane.add(leftSide, rightSide, topSide, bottomSide);
+
+  scene.add(dlight, alight, mainPlane);
+
+  const pane = new Pane();
+
+  pane.addInput(configs, "showField").on("change", (e) => {
+    if (e.value) {
+      for (let i = 0; i < 36; i++) scene.add(fieldLines[i]);
+    } else {
+      for (let i = 0; i < 36; i++) scene.remove(fieldLines[i]);
+    }
+  });
+
+  pane.addInput(configs, "hidePlane").on("change", (e) => {
+    mainPlane.material.opacity = e.value ? 0 : 0.2;
+  });
+
+  pane
+    .addBlade({
+      view: "slider",
+      label: "theta",
+      min: 0,
+      max: 1,
+      value: 0,
+    })
+    .on("change", (e) => {
+      configs.theta = e.value;
+      mainPlane.rotation.y = configs.theta;
+      // forceOnLeftSide.rotation.y = -configs.theta;
+      // forceOnRightSide.rotation.y = -configs.theta;
+
+      if (configs.theta !== 0) {
+        //recalculate top and bottom forces
+        topSide.children.pop();
+        bottomSide.children.pop();
+        bib = configs.b * configs.i * width * Math.cos(configs.theta) * 0.4;
+        const forceOntop = utils.createArrow(
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(1, 0, 0),
+          bib,
+          0.02,
+          "green"
+        );
+        forceOntop.add(
+          utils.createText(
+            `${(bib * 2.5).toFixed(2)}N`,
+            new THREE.Vector3(0, bib + 0.65, 0),
+            0.6,
+            "yellow"
+          )
+        );
+        topSide.add(forceOntop);
+        const forceOnbottom = utils.createArrow(
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(-1, 0, 0),
+          bib,
+          0.02,
+          "green"
+        );
+        forceOnbottom.add(
+          utils.createText(
+            `${(bib * 2.5).toFixed(2)}N`,
+            new THREE.Vector3(0, bib + 0.65, 0),
+            0.6,
+            "yellow"
+          )
+        );
+        bottomSide.add(forceOnbottom);
+        leftSide.children[leftSide.children.length - 1].rotation.y =
+          -configs.theta;
+        rightSide.children[rightSide.children.length - 1].rotation.y =
+          -configs.theta;
+      }
+    });
+
+  pane
+    .addBlade({
+      view: "slider",
+      label: "B",
+      min: 0,
+      max: 5,
+      value: configs.b,
+    })
+    .on("change", (e) => {
+      configs.b = e.value;
+      bib = configs.b * configs.i * width * Math.cos(configs.theta) * 0.1;
+      bil = configs.b * configs.i * length * 0.1;
+      for (let i = 0; i < 36; i++) scene.remove(fieldLines[i]);
+      fieldLines = [];
+
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+          let a = utils.createArrow(
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, 0, 1),
+            configs.b,
+            0.02,
+            "white"
+          );
+          a.position.set(-3 + i * 1.2, -3 + j * 1.2, -0.4);
+          fieldLines.push(a);
+          scene.add(a);
+        }
+      }
+      fieldText.position.z = configs.b + fieldLines[0].children[1].position.z;
+
+      leftSide.children.pop();
+      rightSide.children.pop();
+      topSide.children.pop();
+      bottomSide.children.pop();
+      const leftForce = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        bil,
+        0.02,
+        "green"
+      );
+      const rightForce = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        bil,
+        0.02,
+        "green"
+      );
+      const topForce = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        bib,
+        0.02,
+        "green"
+      );
+      const bottomForce = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        bib,
+        0.02,
+        "green"
+      );
+      topForce.add(
+        utils.createText(
+          `${(bib * 10).toFixed(2)}N`,
+          new THREE.Vector3(0, bib + 0.65, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      bottomForce.add(
+        utils.createText(
+          `${(bib * 10).toFixed(2)}N`,
+          new THREE.Vector3(0, bib + 0.65, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      leftForce.add(
+        utils.createText(
+          `${(bil * 10).toFixed(2)}N`,
+          new THREE.Vector3(0, bil + 1.3, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      rightForce.add(
+        utils.createText(
+          `${(bil * 10).toFixed(2)}N`,
+          new THREE.Vector3(0, bil + 1.3, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      leftForce.rotation.y = -configs.theta;
+      rightForce.rotation.y = -configs.theta;
+      leftSide.add(leftForce);
+      rightSide.add(rightForce);
+      topSide.add(topForce);
+      bottomSide.add(bottomForce);
+    });
+
+  pane
+    .addBlade({
+      view: "slider",
+      label: "current",
+      min: 0,
+      max: 5,
+      value: configs.i,
+    })
+    .on("change", (e) => {
+      configs.i = e.value;
+      bib = configs.b * configs.i * width * Math.cos(configs.theta) * 0.1;
+      bil = configs.b * configs.i * length * 0.1;
+      [
+        leftSideElectrons,
+        rightSideElectrons,
+        topSideElectrons,
+        bottomSideElectrons,
+      ].forEach((array) => {
+        array.forEach((elec) => {
+          elec._speed = configs.i * 0.05;
+        });
+      });
+
+      leftSide.children.pop();
+      rightSide.children.pop();
+      topSide.children.pop();
+      bottomSide.children.pop();
+      const leftForce = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        bil,
+        0.02,
+        "green"
+      );
+      const rightForce = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        bil,
+        0.02,
+        "green"
+      );
+      const topForce = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        bib,
+        0.02,
+        "green"
+      );
+      const bottomForce = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        bib,
+        0.02,
+        "green"
+      );
+      topForce.add(
+        utils.createText(
+          `${(bib * 10).toFixed(2)}N`,
+          new THREE.Vector3(0, bib + 0.65, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      bottomForce.add(
+        utils.createText(
+          `${(bib * 10).toFixed(2)}N`,
+          new THREE.Vector3(0, bib + 0.65, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      leftForce.add(
+        utils.createText(
+          `${(bil * 10).toFixed(2)}N`,
+          new THREE.Vector3(0, bil + 1.3, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      rightForce.add(
+        utils.createText(
+          `${(bil * 10).toFixed(2)}N`,
+          new THREE.Vector3(0, bil + 1.3, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      leftForce.rotation.y = -configs.theta;
+      rightForce.rotation.y = -configs.theta;
+      leftSide.add(leftForce);
+      rightSide.add(rightForce);
+      topSide.add(topForce);
+      bottomSide.add(bottomForce);
+    });
+
+  pane.addInput(configs, "running").on("change", (e) => {
+    configs.running = e.value ? true : false;
+  });
+
+  const updateForces = (property, e) => {
+    if (property === "B") {
+      configs.b = e.value;
+      bil = e.value * configs.i * length * 0.2;
+      bib = configs.b * configs.i * width * 0.2;
+    } else if (property === "theta") {
+      configs.theta = e.value;
+      bil = configs.b * configs.i * length * 0.2;
+      bib = configs.b * configs.i * width * Math.sin(e.value) * 0.2;
+
+      // if (configs.theta === 0) bil = configs.b * configs.i * length * 0.2;
+    } else {
+      //property is I
+      configs.i = e.value;
+      bil = configs.b * e.value * length * 0.2;
+      bib = configs.b * e.value * width * 0.2;
+    }
+
+    if (property === "theta") {
+      topSide.children = [];
+      bottomSide.children = [];
+
+      const newForceOnTopSide = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        bib,
+        0.02,
+        "black"
+      );
+      // for (let i = 0; i < 8; i++) {
+      //   topSide.add(topSideElectrons[i].getMesh());
+      // }
+      topSideElectrons.forEach((electron) => {
+        topSide.add(electron.getMesh());
+      });
+      const newForceOnBottomSide = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        bib,
+        0.02,
+        "black"
+      );
+      // for (let i = 0; i < 8; i++) {
+      //   bottomSide.add(bottomSideElectrons[i].getMesh());
+      // }
+      bottomSideElectrons.forEach((electron) => {
+        bottomSide.add(electron.getMesh());
+      });
+
+      const textTop = utils.createText(
+        `${(bib * 5).toFixed(2)}N`,
+        new THREE.Vector3(0, 2.5, 0),
+        0.6,
+        "yellow"
+      );
+      textTop.position.y = bib + 0.65;
+      newForceOnTopSide.add(textTop);
+
+      const textBottom = utils.createText(
+        `${(bib * 5).toFixed(2)}N`,
+        new THREE.Vector3(0, 2.5, 0),
+        0.6,
+        "yellow"
+      );
+      textBottom.position.y = bib + 0.65;
+      newForceOnBottomSide.add(textBottom);
+      topSide.add(newForceOnTopSide);
+      bottomSide.add(newForceOnBottomSide);
+
+      forceOnLeftSide.position.copy(
+        new THREE.Vector3(
+          -(width / 2.0) * Math.cos(configs.theta),
+          0,
+          (width / 2.0) * Math.sin(configs.theta)
+        )
+      );
+      forceOnRightSide.position.copy(
+        new THREE.Vector3(
+          (width / 2.0) * Math.cos(configs.theta),
+          0,
+          -(width / 2.0) * Math.sin(configs.theta)
+        )
+      );
+      // forceOnLeftSide.rotation.y = -e.value;
+      // forceOnRightSide.rotation.y = -e.value;
+    } else {
+      leftSide.children = [];
+      rightSide.children = [];
+      topSide.children = [];
+      bottomSide.children = [];
+      const newForceOnLeftSide = utils.createArrow(
+        new THREE.Vector3(-width / 2.0, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        bil,
+        0.02,
+        "green"
+      );
+      // for (let i = 0; i < 8; i++) {
+      //   leftSide.add(leftSideElectrons[i].getMesh());
+      // }
+      leftSideElectrons.forEach((electron) => {
+        leftSide.add(electron.getMesh());
+      });
+
+      const newForceOnRightSide = utils.createArrow(
+        new THREE.Vector3(width / 2.0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        bil,
+        0.02,
+        "green"
+      );
+      // for (let i = 0; i < 8; i++) {
+      //   rightSide.add(rightSideElectrons[i].getMesh());
+      // }
+      rightSideElectrons.forEach((electron) => {
+        rightSide.add(electron.getMesh());
+      });
+      const newForceOnTopSide = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        bib,
+        0.02,
+        "black"
+      );
+
+      // for (let i = 0; i < 8; i++) {
+      //   topSide.add(topSideElectrons[i].getMesh());
+      // }
+      topSideElectrons.forEach((electron) => {
+        topSide.add(electron.getMesh());
+      });
+      const newForceOnBottomSide = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        bib,
+        0.02,
+        "black"
+      );
+
+      // for (let i = 0; i < 8; i++) {
+      //   bottomSide.add(bottomSideElectrons[i].getMesh());
+      // }
+      bottomSideElectrons.forEach((electron) => {
+        bottomSide.add(electron.getMesh());
+      });
+
+      const textLeft = utils.createText(
+        `${(bil * 5).toFixed(2)}N`,
+        new THREE.Vector3(0, 2.5, 0),
+        0.6,
+        "yellow"
+      );
+      textLeft.position.y = bib + 2;
+      newForceOnLeftSide.add(textLeft);
+
+      const textRight = utils.createText(
+        `${(bil * 5).toFixed(2)}N`,
+        new THREE.Vector3(0, 2.5, 0),
+        0.6,
+        "yellow"
+      );
+      textRight.position.y = bil + 1.5;
+      newForceOnRightSide.add(textRight);
+
+      const textTop = utils.createText(
+        `${(bib * Math.cos(configs.theta) * 5).toFixed(2)}N`,
+        new THREE.Vector3(0, 2.5, 0),
+        0.6,
+        "yellow"
+      );
+      textTop.position.y = bib + 0.65;
+      newForceOnTopSide.add(textTop);
+
+      const textBottom = utils.createText(
+        `${(bib * Math.cos(configs.theta) * 5).toFixed(2)}N`,
+        new THREE.Vector3(0, 2.5, 0),
+        0.6,
+        "yellow"
+      );
+      textBottom.position.y = bib + 0.65;
+      newForceOnBottomSide.add(textBottom);
+
+      // newForceOnLeftSide.rotation.y = -configs.theta;
+      // newForceOnRightSide.rotation.y = -configs.theta;
+      if (configs.running) {
+        newForceOnLeftSide.position.copy(
+          new THREE.Vector3(
+            -(width / 2.0) * Math.cos(theta),
+            0,
+            (width / 2.0) * Math.sin(theta)
+          )
+        );
+        newForceOnRightSide.position.copy(
+          new THREE.Vector3(
+            (width / 2.0) * Math.cos(theta),
+            0,
+            -(width / 2.0) * Math.sin(theta)
+          )
+        );
+      } else {
+        newForceOnLeftSide.position.copy(
+          new THREE.Vector3(
+            -(width / 2.0) * Math.cos(configs.theta),
+            0,
+            (width / 2.0) * Math.sin(configs.theta)
+          )
+        );
+        newForceOnRightSide.position.copy(
+          new THREE.Vector3(
+            (width / 2.0) * Math.cos(configs.theta),
+            0,
+            -(width / 2.0) * Math.sin(configs.theta)
+          )
+        );
+      }
+
+      // leftSide.add(newForceOnLeftSide);
+      // rightSide.add(newForceOnRightSide);
+      // scene.add(newForceOnLeftSide, newForceOnRightSide);
+      topSide.add(newForceOnTopSide);
+      bottomSide.add(newForceOnBottomSide);
+    }
+  };
+
+  const animate = function () {
+    requestAnimationFrame(animate);
+    controls.update();
+    leftSideElectrons.forEach((e) => {
+      e.behaviour();
+    });
+    rightSideElectrons.forEach((e) => {
+      e.behaviour();
+    });
+    topSideElectrons.forEach((e) => {
+      e.behaviour();
+    });
+    bottomSideElectrons.forEach((e) => {
+      e.behaviour();
+    });
+
+    if (configs.running) {
+      theta = configs.theta * Math.cos(5 * t);
+      mainPlane.rotation.y = theta;
+      t += 0.01;
+
+      topSide.children.pop();
+      bottomSide.children.pop();
+      bib = configs.b * configs.i * width * Math.cos(theta) * 0.4;
+      const forceOntop = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        bib,
+        0.02,
+        "green"
+      );
+      forceOntop.add(
+        utils.createText(
+          `${(bib * 2.5).toFixed(2)}N`,
+          new THREE.Vector3(0, bib + 0.65, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      topSide.add(forceOntop);
+      const forceOnbottom = utils.createArrow(
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        bib,
+        0.02,
+        "green"
+      );
+      forceOnbottom.add(
+        utils.createText(
+          `${(bib * 2.5).toFixed(2)}N`,
+          new THREE.Vector3(0, bib + 0.65, 0),
+          0.6,
+          "yellow"
+        )
+      );
+      bottomSide.add(forceOnbottom);
+      leftSide.children[leftSide.children.length - 1].rotation.y = -theta;
+      rightSide.children[rightSide.children.length - 1].rotation.y = -theta;
+      // bil = configs.b * configs.i * length * 0.2;
+      // bib = configs.b * configs.i * width * Math.sin(theta) * 0.2;
+      // topSide.children = [];
+      // bottomSide.children = [];
+
+      // const newForceOnTopSide = utils.createArrow(
+      //   new THREE.Vector3(0, 0, 0),
+      //   new THREE.Vector3(1, 0, 0),
+      //   bib,
+      //   0.02,
+      //   "black"
+      // );
+      // // for (let i = 0; i < 8; i++) {
+      // //   topSide.add(topSideElectrons[i].getMesh());
+      // // }
+      // topSideElectrons.forEach((electron) => {
+      //   topSide.add(electron.getMesh());
+      // });
+
+      // const newForceOnBottomSide = utils.createArrow(
+      //   new THREE.Vector3(0, 0, 0),
+      //   new THREE.Vector3(-1, 0, 0),
+      //   bib,
+      //   0.02,
+      //   "black"
+      // );
+      // // for (let i = 0; i < 8; i++) {
+      // //   bottomSide.add(bottomSideElectrons[i].getMesh());
+      // // }
+      // bottomSideElectrons.forEach((electron) => {
+      //   bottomSide.add(electron.getMesh());
+      // });
+
+      // const textTop = utils.createText(
+      //   `${(bib * 5).toFixed(2)}N`,
+      //   new THREE.Vector3(0, 2.5, 0),
+      //   0.6,
+      //   "yellow"
+      // );
+      // textTop.position.y = bib + 0.65;
+      // newForceOnTopSide.add(textTop);
+
+      // const textBottom = utils.createText(
+      //   `${(bib * 5).toFixed(2)}N`,
+      //   new THREE.Vector3(0, 2.5, 0),
+      //   0.6,
+      //   "yellow"
+      // );
+      // textBottom.position.y = bib + 0.65;
+      // forceOnLeftSide.position.copy(
+      //   new THREE.Vector3(
+      //     -(width / 2.0) * Math.cos(configs.theta),
+      //     0,
+      //     (width / 2.0) * Math.sin(configs.theta)
+      //   )
+      // );
+      // // forceOnRightSide.position.copy(
+      // //   new THREE.Vector3(
+      // //     (width / 2.0) * Math.cos(configs.theta),
+      // //     0,
+      // //     -(width / 2.0) * Math.sin(configs.theta)
+      // //   )
+      // // );
+
+      // newForceOnBottomSide.add(textBottom);
+      // topSide.add(newForceOnTopSide);
+      // bottomSide.add(newForceOnBottomSide);
+
+      // // forceOnLeftSide.rotation.y = -theta;
+      // // forceOnRightSide.rotation.y = -theta;
+      // forceOnLeftSide.position.copy(
+      //   new THREE.Vector3(
+      //     -(width / 2.0) * Math.cos(theta),
+      //     0,
+      //     (width / 2.0) * Math.sin(theta)
+      //   )
+      // );
+      // forceOnRightSide.position.copy(
+      //   new THREE.Vector3(
+      //     (width / 2.0) * Math.cos(theta),
+      //     0,
+      //     -(width / 2.0) * Math.sin(theta)
+      //   )
+      // );
+      // updateForces("theta", { value: configs.theta * Math.cos(2 * t) });
+    }
+    renderer.render(scene, camera);
+  };
+
+  animate();
+};

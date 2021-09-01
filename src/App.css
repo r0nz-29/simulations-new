@@ -1,0 +1,20 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #011f14;
+}
+
+#root {
+  background-color: #011f14;
+}
+
+/* class for monitor displays */
+#graph .tp-lblv_v {
+  width: 400px;
+  height: 400px;
+}
+
+/* svg class for graph display  */
+#graph .tp-grlv_g {
+  height: 400px !important;
+}
