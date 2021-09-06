@@ -106,20 +106,6 @@ export function VectorField(src0, src1) {
     //console.log(AP);
     return BP;
   };
-  // if (options) {
-  //   if (options.minBounds) this.minBounds = options.minBounds;
-  //   if (options.maxBounds) this.maxBounds = options.maxBounds;
-  //   if (options.arrowLoc) this.arrowLoc = options.arrowLoc;
-  //   if (options.arrowSize) this.arrowSize = options.arrowSize;
-  //   if (options.maxSteps) this.maxSteps = options.maxSteps;
-  //   if (options.fieldColor) this.fieldColor = options.fieldColor;
-  //   if (options.arrowColor) this.arrowColor = options.arrowColor;
-  //   if (options.stopPoints) this.stopPoints = options.stopPoints;
-  //   if (options.fieldEvaluator) this.fieldEvaluator = options.fieldEvaluator;
-  //   if (options.min) this.min = options.min;
-  //   if (options.max) this.max = options.max;
-  //   if (options.step) this.step = options.step;
-  // }
 
   this.addStopPoints = function (p) {
     this.stopPoints[this.stopPoints.length] = p;
@@ -190,13 +176,6 @@ export function VectorField(src0, src1) {
         linewidth: 4,
       });
       curveObject = new THREE.Line(geometry, material);
-      //material = new MeshLineMaterial({
-      //  lineWidth:2.5,
-      // color:this.fieldColor
-      //});
-      //const line = new MeshLine();
-      // line.setPoints(points);
-      // curveObject = new THREE.Line(geometry, material);
     }
 
     let ap1 = curve.getPoint(this.arrowLoc);
@@ -288,14 +267,6 @@ export const createRefPlane = (width, height) => {
   return plane;
 };
 
-// export const createArrow = (radius, length) => {
-//   const coneG = new THREE.ConeGeometry(radius, length, 10, 10);
-//   const arrow = new THREE.Mesh(coneG, createMaterial("red", false));
-//   arrow.rotation.z = -Math.PI / 2;
-//   arrow.position.x += 0.06;
-//   return arrow;
-// };
-
 export const cross = () => {
   const circle = new THREE.Mesh(
     new THREE.RingGeometry(0.12, 0.15, 20, 10),
@@ -319,24 +290,6 @@ export const cross = () => {
   return circle;
 };
 
-// export const createCompass = (configs) => {
-//   const g = new THREE.CylinderGeometry(0.5, 0.5, 0.01, 20, 20);
-//   const m = new THREE.MeshPhysicalMaterial({
-//     map: Compass,
-//   });
-//   const c = new THREE.Mesh(g, m);
-//   // c.rotation.x = Math.PI / 2;
-//   c.position.set(3, 0, 0);
-//   // c.rotation.y = Math.PI;
-//   let direction = c.position.normalize();
-//   let newPos = new THREE.Vector3(direction.x * 3.0, 0, direction.z * 3.0);
-//   let initial_angle =
-//     configs.currentDir === "down" ? -Math.PI / 2 : Math.PI / 2;
-//   c.rotation.y = initial_angle;
-//   c.position.copy(newPos);
-//   return c;
-// };
-
 export const createText = (text, pos, size, color) => {
   if (!color) color = "#ffffff";
   if (!size) size = 0.1;
@@ -344,7 +297,6 @@ export const createText = (text, pos, size, color) => {
   let textSprite = new TextSprite({
     alignment: "center",
     color: color,
-    // fontFamily: "Arial, Times, serif",
     fontFamily: "monospace",
     fontSize: size,
     fontStyle: "bold",
@@ -354,7 +306,7 @@ export const createText = (text, pos, size, color) => {
   return textSprite;
 };
 
-export const createArrow = (start, dir, length, thickness, color) => {
+export const createArrow = (start, dir, length, thickness, color, shadow) => {
   let cylinderGeom = new THREE.CylinderGeometry(
     thickness / 2,
     thickness / 2,
@@ -371,6 +323,10 @@ export const createArrow = (start, dir, length, thickness, color) => {
 
   head.position.set(0, length - thickness * 2, 0);
   let arrow = new THREE.Group();
+  if (shadow) {
+    cylinder.castShadow = true;
+    head.castShadow = true;
+  }
   arrow.add(cylinder);
   arrow.add(head);
   var axis = new THREE.Vector3(0, 1, 0);

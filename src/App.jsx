@@ -4,22 +4,26 @@ import "./App.css";
 
 const App = () => {
   useEffect(() => {
-    renderScene(graphContainer.current);
+    renderScene();
   }, []);
-  const graphContainer = React.useRef(null);
   return (
-    <div
-      ref={graphContainer}
-      id="graph"
+    <button
       style={{
         position: "absolute",
-        bottom: 0,
-        left: 0,
-        // border: "1px solid red",
-        // width: "500px",
-        // height: "300px",
+        top: "100px",
+        right: "10px",
+        width: "13vw",
+        padding: "1vw",
+        fontSize: "22px",
+        cursor: "pointer",
+        backgroundColor: "#a9a9a9",
+        borderRadius: "5px",
+        border: "none",
       }}
-    ></div>
+      onClick={() => window.location.reload()}
+    >
+      reset
+    </button>
   );
 };
 

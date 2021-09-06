@@ -4,12 +4,6 @@ import { Pane } from "tweakpane";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { DragControls } from "three/examples/jsm/controls/DragControls";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
-// import posx from "../../images/clouds1/clouds1_east.bmp";
-// import negx from "../../images/clouds1/clouds1_west.bmp";
-// import posy from "../../images/clouds1/clouds1_up.bmp";
-// import negy from "../../images/clouds1/clouds1_down.bmp";
-// import posz from "../../images/clouds1/clouds1_north.bmp";
-// import negz from "../../images/clouds1/clouds1_south.bmp";
 
 const configs = {
   theta: 0,
@@ -22,7 +16,6 @@ const r = 2;
 const z = 3;
 let w = 0;
 let running = false;
-
 
 export const renderScene = () => {
   const scene = new THREE.Scene();
@@ -48,14 +41,8 @@ export const renderScene = () => {
   dlight.castShadow = true;
   const slight = new THREE.SpotLight("white", 10);
   slight.position.set(0, 0, 5);
-  // const sky = utils.createSky(renderer);
-  // const loader = new THREE.CubeTextureLoader();
-  // const texture = loader.load([posx, negx, posy, negy, posz, negz]);
-  // scene.background = texture;
-
   const ground = utils.ground();
   scene.add(ground);
-  // scene.add(new THREE.DirectionalLightHelper(dlight));
 
   let dlContainer = new THREE.Mesh(
     new THREE.PlaneGeometry(1, 1),
@@ -127,7 +114,7 @@ export const renderScene = () => {
     "red"
   );
   dlHelper.add(dlText);
-  console.log(dlHelper)
+  console.log(dlHelper);
   dlContainer.add(dlHelper);
 
   let v1 = positionVector;
@@ -163,23 +150,8 @@ export const renderScene = () => {
   db.add(dbText);
   point.add(db);
 
-  const {line1, line2} = utils.rightAngle(point.position, direction, rvector);
-  rVector.add(line1, line2)
-//   const path = new THREE.Path();
-//   path.moveTo(point.position.x, point.position.y);
-
-// path.lineTo();
-// path.quadraticCurveTo( 0, 1, 0.2, 1 );
-// path.lineTo( 1, 1 );
-
-// const points = path.getPoints();
-
-// const geometry = new THREE.BufferGeometry().setFromPoints( points );
-// const material = new THREE.LineBasicMaterial( { color: 0xffffff } );
-
-// const line = new THREE.Line( geometry, material );
-// scene.add( line );
-
+  const { line1, line2 } = utils.rightAngle(point.position, direction, rvector);
+  rVector.add(line1, line2);
   scene.add(alight, dlight, coil);
 
   let draggables = [point];
@@ -236,11 +208,13 @@ export const renderScene = () => {
       "white"
     );
     db.add(dbText);
-    const {line1, line2} = utils.rightAngle(point.position, direction, rvector);
-  newRvector
-  .add(line1, line2)
-    point
-    .add(db);
+    const { line1, line2 } = utils.rightAngle(
+      point.position,
+      direction,
+      rvector
+    );
+    newRvector.add(line1, line2);
+    point.add(db);
   });
   dragControls.addEventListener("dragend", (e) => {
     controls.enabled = true;
@@ -360,11 +334,11 @@ export const renderScene = () => {
     }
   });
 
-  pane.addInput(configs, "showField").on("change", (e) => {
-    let field = magneticField.createField(new THREE.Vector3(1, 3, 0), false, 1);
-    if (e.value) scene.add(field);
-    else scene.remove(field);
-  });
+  // pane.addInput(configs, "showField").on("change", (e) => {
+  //   let field = magneticField.createField(new THREE.Vector3(1, 3, 0), false, 1);
+  //   if (e.value) scene.add(field);
+  //   else scene.remove(field);
+  // });
 
   const animate = function () {
     requestAnimationFrame(animate);

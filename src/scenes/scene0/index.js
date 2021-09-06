@@ -14,7 +14,6 @@ import {
 import { Pane } from "tweakpane";
 import { Electron } from "./Electron";
 import { DragControls } from "three/examples/jsm/controls/DragControls";
-import { OrthographicCamera, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 export const renderScene = () => {
@@ -25,6 +24,7 @@ export const renderScene = () => {
     showHand: false,
     w: 0.1,
   };
+
   const compass = createCompass(configs);
   compass.castShadow = true;
   console.log(configs);
@@ -34,25 +34,15 @@ export const renderScene = () => {
     window.innerWidth / window.innerHeight,
     0.1,
     1000
-    );
-    const floor = ground(15, 20, 0 ,-2, 0);
-    scene.add(floor)
-    // remove metalness from material if using OrthographicCamera !!!
-  // const camera = new THREE.OrthographicCamera(
-  //   window.innerWidth / -180,
-  //   window.innerWidth / 180,
-  //   window.innerHeight / 180,
-  //   window.innerHeight / -180,
-  //   1,
-  //   1000
-  // );
+  );
+  const floor = ground(15, 20, 0, -2, 0);
+  scene.add(floor);
   camera.position.set(5, 5, 5);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  // renderer.physicallyCorrectLights = true;
   document.body.appendChild(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
   const alight = new THREE.AmbientLight("white", 0.2);
@@ -63,7 +53,6 @@ export const renderScene = () => {
   let objects = [];
   objects.push(compass);
   const dragControls = new DragControls(objects, camera, renderer.domElement);
-  // dragControls.deactivate();
   const pane = new Pane();
 
   let electrons = [];
@@ -72,7 +61,6 @@ export const renderScene = () => {
   let frontArrows = [];
   let hand;
 
-  // const sky = createSky(renderer);
   const Wire = createWire(0.4, 0.4, 7);
   Wire.castShadow = true;
 
@@ -93,7 +81,14 @@ export const renderScene = () => {
   }
 
   for (let i = 0; i < 8; i++) {
-    const electron = new Electron(0.3, "red", false, configs.currentDir, 0.03, 6.2);
+    const electron = new Electron(
+      0.3,
+      "red",
+      false,
+      configs.currentDir,
+      0.03,
+      6.2
+    );
     electron.getMesh().position.y = -3.2 + i * 0.8;
     electrons.push(electron);
   }
@@ -111,18 +106,18 @@ export const renderScene = () => {
     new THREE.Vector3(0, 0, -1),
     1.5,
     0.1,
-    'yellow'
+    "yellow"
   );
-  crossHelper1.add(fieldHelper1)
+  crossHelper1.add(fieldHelper1);
 
   const fieldHelper2 = createArrow(
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, 0, 1),
     1.5,
     0.1,
-    'yellow'
+    "yellow"
   );
-  crossHelper2.add(fieldHelper2)
+  crossHelper2.add(fieldHelper2);
 
   const referencePlane = createRefPlane(5, 5, false);
   const ringPlane = createRefPlane(5, 5, true);
@@ -132,22 +127,24 @@ export const renderScene = () => {
     new THREE.Vector3(0, -1, 0),
     1,
     0.1,
-    'white'
-  )
+    "white"
+  );
 
   currentDirection.add(
     createText(
-      'i',
-      currentDirection.children[1].position.clone().setZ(0.05).multiplyScalar(1.6),
+      "i",
+      currentDirection.children[1].position
+        .clone()
+        .setZ(0.05)
+        .multiplyScalar(1.6),
       0.42,
-      'white'
+      "white"
     )
-  )
+  );
 
   const loader = new OBJLoader();
   loader.setPath("./assets/");
   loader.load("thumbsUp.obj", (obj) => {
-    // this._scene.add(obj);
     obj.scale.set(0.05, 0.05, 0.05);
     obj.position.set(-0.1, 5, 0.5);
     const material = new THREE.MeshBasicMaterial({
@@ -155,17 +152,9 @@ export const renderScene = () => {
     });
     obj.material = material;
     hand = obj;
-    // console.log(hand);
   });
 
-  scene.add(
-    camera,
-    Wire,
-    compass,
-    currentDirection,
-    alight,
-    dlight,
-  );
+  scene.add(camera, Wire, compass, currentDirection, alight, dlight);
 
   for (let i = 0; i < 4; i++) {
     rings[i].add(backArrows[i].getMesh());
@@ -224,13 +213,13 @@ export const renderScene = () => {
         crossHelper2.position.x = 2;
 
         let direction = compass.position.normalize();
-        let newPos = new Vector3(direction.x * 3.0, 0, direction.z * 3.0);
+        let newPos = new THREE.Vector3(direction.x * 3.0, 0, direction.z * 3.0);
         // let initial_angle = configs.currentDir === "down" ? -Math.PI / 2 : Math.PI / 2;
         compass.rotation.y = Math.PI / 2;
         compass.position.copy(newPos);
 
         hand.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI);
-        hand.position.copy(new THREE.Vector3(-0.1, 5, 0.5))
+        hand.position.copy(new THREE.Vector3(-0.1, 5, 0.5));
       } else {
         frontArrows.forEach((arrow) => {
           arrow.getMesh().rotation.z = Math.PI / 2;
@@ -245,23 +234,26 @@ export const renderScene = () => {
         configs.w = -0.1;
         compass.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI);
         hand.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI);
-        hand.position.copy(new THREE.Vector3(0, -2, 0.5))
+        hand.position.copy(new THREE.Vector3(0, -2, 0.5));
         scene.remove(currentDirection);
         newDirection = createArrow(
           new THREE.Vector3(1, 1, 0),
           new THREE.Vector3(0, 1, 0),
           1,
           0.1,
-          'white'
-        )
+          "white"
+        );
         newDirection.add(
           createText(
-            'i',
-            currentDirection.children[1].position.clone().setZ(0.05).multiplyScalar(1.6),
+            "i",
+            currentDirection.children[1].position
+              .clone()
+              .setZ(0.05)
+              .multiplyScalar(1.6),
             0.42,
-            'white'
+            "white"
           )
-        )
+        );
         scene.add(newDirection);
       } else {
         compass.rotateOnAxis(new THREE.Vector3(0, 1, 0), -Math.PI);
@@ -272,28 +264,18 @@ export const renderScene = () => {
 
   dragControls.addEventListener("dragstart", (e) => {
     controls.enabled = false;
-    let comp = e.object;
-    let direction = comp.position.normalize();
-    let newPos = new Vector3(direction.x * 3.0, 0, direction.z * 3.0);
-    let angle = Math.atan2(direction.z, direction.x);
-    let initial_angle =
-      configs.currentDir === "down" ? -Math.PI / 2 : Math.PI / 2;
-    comp.rotation.y = initial_angle;
-    comp.position.copy(newPos);
   });
 
   dragControls.addEventListener("drag", (e) => {
     controls.enabled = false;
     let comp = e.object;
     let direction = comp.position.normalize();
-    let newPos = new Vector3(direction.x * 3.0, 0, direction.z * 3.0);
+    let newPos = new THREE.Vector3(direction.x * 3.0, 0, direction.z * 3.0);
     let angle = Math.atan2(direction.z, direction.x);
     let initial_angle =
       configs.currentDir === "down" ? -Math.PI / 2 : Math.PI / 2;
     comp.rotation.y = initial_angle - angle;
     comp.position.copy(newPos);
-    // let angle = new Vector3(0, 0, 1).angleTo(comp.position);
-    // comp.rotateOnAxis(new THREE.Vector3(0, 0, 1), angle);
   });
 
   dragControls.addEventListener("dragend", (e) => {

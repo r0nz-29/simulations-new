@@ -1,0 +1,37 @@
+import React, { useEffect } from "react";
+import "./App.css";
+
+const App = () => {
+  return (
+    <div class="sketchfab-embed-wrapper">
+      {" "}
+      <iframe
+        title="Moving coil galvanometer physics"
+        frameborder="0"
+        allowfullscreen
+        mozallowfullscreen="true"
+        webkitallowfullscreen="true"
+        allow="fullscreen; autoplay; vr"
+        xr-spatial-tracking
+        execution-while-out-of-viewport
+        execution-while-not-rendered
+        web-share
+        src="https://sketchfab.com/models/445413d65bd34d3f8b94f5a3b4681ed7/embed"
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
+      ></iframe>
+      <p
+        style={{
+          fontSize: "13px",
+          fontWeight: "normal",
+          margin: "5px",
+          color: "#4A4A4A",
+        }}
+      ></p>
+    </div>
+  );
+};
+
+export default App;

@@ -28,33 +28,33 @@ export const ground = (width, height, x, y, z) => {
 };
 
 export const dashedLine = (startV, endV, dashed) => {
-  // const geometry = new LineGeometry();
-  // geometry.setPositions([startV.x, startV.y, startV.z, endV.x, endV.y, endV.z]); // [ x1, y1, z1,  x2, y2, z2, ... ] format
-  // const material = new LineMaterial({
-  //   color: "black",
-  //   linewidth: 5, // px
-  //   resolution: new THREE.Vector2(window.innerWidth, window.innerHeight), // resolution of the viewport
-  //   // dashed, dashScale, dashSize, gapSize
-  //   dashed: dashed,
-  //   dashSize: dashed && 0.3,
-  //   gapSize: dashed && 0.1,
-  // });
-  const material = new MeshLineMaterial({
-    color: new THREE.Color("rgb(255, 2, 2)"),
-    opacity: 1,
-    resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
-    sizeAttenuation: 1,
-    lineWidth: 1,
-    depthTest: false,
-    blending: THREE.AdditiveBlending,
-    transparent: false,
-    side: THREE.DoubleSide,
+  const geometry = new LineGeometry();
+  geometry.setPositions([startV.x, startV.y, startV.z, endV.x, endV.y, endV.z]); // [ x1, y1, z1,  x2, y2, z2, ... ] format
+  const material = new LineMaterial({
+    color: "black",
+    linewidth: 5, // px
+    resolution: new THREE.Vector2(window.innerWidth, window.innerHeight), // resolution of the viewport
+    // dashed, dashScale, dashSize, gapSize
+    dashed: dashed,
+    dashSize: dashed && 0.3,
+    gapSize: dashed && 0.1,
   });
-  // const dashedline = new Line2(geometry, material);
-  const line = new MeshLine();
-  line.setPoints([startV.x, startV.y, startV.z, endV.x, endV.y, endV.z]);
-  const dashedline = new THREE.Mesh(line, material);
-  // dashedline.computeLineDistances();
+  // const material = new MeshLineMaterial({
+  //   color: new THREE.Color("rgb(255, 2, 2)"),
+  //   opacity: 1,
+  //   resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
+  //   sizeAttenuation: 1,
+  //   lineWidth: 1,
+  //   depthTest: false,
+  //   blending: THREE.AdditiveBlending,
+  //   transparent: false,
+  //   side: THREE.DoubleSide,
+  // });
+  // // const dashedline = new Line2(geometry, material);
+  // const line = new MeshLine();
+  // line.setPoints([startV.x, startV.y, startV.z, endV.x, endV.y, endV.z]);
+  const dashedline = new Line2(geometry, material);
+  dashedline.computeLineDistances();
   return dashedline;
 };
 
@@ -365,6 +365,7 @@ export const createText = (text, pos, size, color) => {
 };
 
 export const createArrow = (start, dir, length, thickness, color) => {
+  thickness = 0.09;
   let cylinderGeom = new THREE.CylinderGeometry(
     thickness / 2,
     thickness / 2,
@@ -416,7 +417,7 @@ export function monkeyPatch(
   `;
 }
 
-export const dashedLoop = (r) => {
+export const dashedLoop = (r, color) => {
   let points = [];
   let j = 0;
   for (let i = 0; i < 2 * Math.PI; i += 0.1) {
@@ -429,7 +430,7 @@ export const dashedLoop = (r) => {
   const geometry = new LineGeometry();
   geometry.setPositions(points); // [ x1, y1, z1,  x2, y2, z2, ... ] format
   const material = new LineMaterial({
-    color: "black",
+    color: `${color}`,
     linewidth: 5, // px
     resolution: new THREE.Vector2(window.innerWidth, window.innerHeight), // resolution of the viewport
     dashed: true,

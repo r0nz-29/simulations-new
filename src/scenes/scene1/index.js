@@ -3,17 +3,9 @@ import * as utils from "../../utils";
 import { Pane } from "tweakpane";
 import { Electron } from "../scene0/Electron";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// import posx from "../../images/clouds1/clouds1_east.bmp";
-// import negx from "../../images/clouds1/clouds1_west.bmp";
-// import posy from "../../images/clouds1/clouds1_up.bmp";
-// import negy from "../../images/clouds1/clouds1_down.bmp";
-// import posz from "../../images/clouds1/clouds1_north.bmp";
-// import negz from "../../images/clouds1/clouds1_south.bmp";
 
 let t = 0;
 let theta = 0;
-let paddingX = 1.6;
-let paddingY = 1.3;
 let length = 8;
 let width = 6;
 let configs = {
@@ -36,31 +28,19 @@ export const renderScene = (graphContainer) => {
     0.1,
     1000
   );
-  // const camera = new THREE.OrthographicCamera(
-  //   window.innerWidth / -180,
-  //   window.innerWidth / 180,
-  //   window.innerHeight / 180,
-  //   window.innerHeight / -180,
-  //   1,
-  //   1000
-  // );
+
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  // renderer.physicallyCorrectLights = true;
   document.body.appendChild(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
   camera.position.set(-3, 2, 15);
   const alight = new THREE.AmbientLight("grey");
   const dlight = new THREE.DirectionalLight("white", 2);
-  dlight.position.set(0, 5, 5);
+  dlight.position.set(0, 10, 10);
   dlight.castShadow = true;
-  // const sky = utils.createSky(renderer);
-  // const loader = new THREE.CubeTextureLoader();
-  // const texture = loader.load([posx, negx, posy, negy, posz, negz]);
-  // scene.background = texture;
 
   const ground = utils.ground(15, 15, 0, -7, -7);
   scene.add(ground);
@@ -172,7 +152,8 @@ export const renderScene = (graphContainer) => {
     new THREE.Vector3(-1, 0, 0),
     bil,
     0.06,
-    "yellow"
+    "yellow",
+    true
   );
 
   const forceOnRightSide = utils.createArrow(
@@ -180,7 +161,8 @@ export const renderScene = (graphContainer) => {
     new THREE.Vector3(1, 0, 0),
     bil,
     0.06,
-    "yellow"
+    "yellow",
+    true
   );
 
   const forceOnTopSide = utils.createArrow(
@@ -349,18 +331,18 @@ export const renderScene = (graphContainer) => {
         //recalculate top and bottom forces
         topSide.children.pop();
         bottomSide.children.pop();
-        bib = configs.b * configs.i * width * Math.cos(configs.theta) * 0.4;
+        bib = configs.b * configs.i * width * Math.sin(configs.theta);
         const forceOntop = utils.createArrow(
           new THREE.Vector3(0, 0, 0),
           new THREE.Vector3(1, 0, 0),
-          bib,
+          bib * 0.2,
           0.06,
           "yellow"
         );
         forceOntop.add(
           utils.createText(
-            `${(bib * 2.5).toFixed(2)}N`,
-            new THREE.Vector3(0, bib + 0.65, 0),
+            `${bib.toFixed(2)}N`,
+            new THREE.Vector3(0, bib * 0.2 + 0.5, 0),
             0.6,
             "yellow"
           )
@@ -369,14 +351,14 @@ export const renderScene = (graphContainer) => {
         const forceOnbottom = utils.createArrow(
           new THREE.Vector3(0, 0, 0),
           new THREE.Vector3(-1, 0, 0),
-          bib,
+          bib * 0.2,
           0.06,
           "yellow"
         );
         forceOnbottom.add(
           utils.createText(
-            `${(bib * 2.5).toFixed(2)}N`,
-            new THREE.Vector3(0, bib + 0.65, 0),
+            `${bib.toFixed(2)}N`,
+            new THREE.Vector3(0, bib * 0.2 + 0.5, 0),
             0.6,
             "yellow"
           )
@@ -429,16 +411,18 @@ export const renderScene = (graphContainer) => {
       const leftForce = utils.createArrow(
         new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(-1, 0, 0),
-        bil,
+        bil * 3,
         0.06,
-        "yellow"
+        "yellow",
+        true
       );
       const rightForce = utils.createArrow(
         new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(1, 0, 0),
-        bil,
+        bil * 3,
         0.06,
-        "yellow"
+        "yellow",
+        true
       );
       const topForce = utils.createArrow(
         new THREE.Vector3(0, 0, 0),
@@ -473,7 +457,7 @@ export const renderScene = (graphContainer) => {
       leftForce.add(
         utils.createText(
           `${(bil * 10).toFixed(2)}N`,
-          new THREE.Vector3(0, bil + 1.3, 0),
+          new THREE.Vector3(0, bil * 3 + 1.8, 0),
           0.6,
           "yellow"
         )
@@ -481,7 +465,7 @@ export const renderScene = (graphContainer) => {
       rightForce.add(
         utils.createText(
           `${(bil * 10).toFixed(2)}N`,
-          new THREE.Vector3(0, bil + 1.3, 0),
+          new THREE.Vector3(0, bil * 3 + 1.8, 0),
           0.6,
           "yellow"
         )
@@ -524,16 +508,18 @@ export const renderScene = (graphContainer) => {
       const leftForce = utils.createArrow(
         new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(-1, 0, 0),
-        bil,
+        bil * 3,
         0.06,
-        "yellow"
+        "yellow",
+        true
       );
       const rightForce = utils.createArrow(
         new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(1, 0, 0),
-        bil,
+        bil * 3,
         0.06,
-        "yellow"
+        "yellow",
+        true
       );
       const topForce = utils.createArrow(
         new THREE.Vector3(0, 0, 0),
@@ -568,7 +554,7 @@ export const renderScene = (graphContainer) => {
       leftForce.add(
         utils.createText(
           `${(bil * 10).toFixed(2)}N`,
-          new THREE.Vector3(0, bil + 1.3, 0),
+          new THREE.Vector3(0, bil * 3 + 1.8, 0),
           0.6,
           "yellow"
         )
@@ -576,7 +562,7 @@ export const renderScene = (graphContainer) => {
       rightForce.add(
         utils.createText(
           `${(bil * 10).toFixed(2)}N`,
-          new THREE.Vector3(0, bil + 1.3, 0),
+          new THREE.Vector3(0, bil * 3 + 1.8, 0),
           0.6,
           "yellow"
         )
@@ -627,18 +613,18 @@ export const renderScene = (graphContainer) => {
 
       topSide.children.pop();
       bottomSide.children.pop();
-      bib = configs.b * configs.i * width * Math.cos(theta) * 0.4;
+      bib = configs.b * configs.i * width * Math.abs(Math.sin(theta));
       const forceOntop = utils.createArrow(
         new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(1, 0, 0),
-        bib,
+        bib * 0.2,
         0.06,
         "yellow"
       );
       forceOntop.add(
         utils.createText(
-          `${(bib * 2.5).toFixed(2)}N`,
-          new THREE.Vector3(0, bib + 0.65, 0),
+          `${bib.toFixed(2)}N`,
+          new THREE.Vector3(0, bib * 0.2 + 0.5, 0),
           0.6,
           "yellow"
         )
@@ -647,14 +633,14 @@ export const renderScene = (graphContainer) => {
       const forceOnbottom = utils.createArrow(
         new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(-1, 0, 0),
-        bib,
+        bib * 0.2,
         0.06,
         "yellow"
       );
       forceOnbottom.add(
         utils.createText(
-          `${(bib * 2.5).toFixed(2)}N`,
-          new THREE.Vector3(0, bib + 0.65, 0),
+          `${bib.toFixed(2)}N`,
+          new THREE.Vector3(0, bib * 0.2 + 0.5, 0),
           0.6,
           "yellow"
         )
