@@ -1,11 +1,11 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #011f14;
+  background-color: black;
 }
 
 #root {
-  background-color: #011f14;
+  background-color: black;
 }
 
 /* class for monitor displays */

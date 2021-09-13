@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { renderScene } from "./scenes/scene3/index";
+import { renderScene } from "./scenes/scene5/index";
 import "./App.css";
 
 const App = () => {

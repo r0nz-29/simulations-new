@@ -13,15 +13,15 @@ export const ground = (width, height, x, y, z) => {
   const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(width ? width : 10, height ? height : 10, 10, 10),
     new THREE.MeshPhongMaterial({
-      side: THREE.DoubleSide,
+      side: THREE.BackSide,
       color: "grey",
       map: groundTexture,
     })
   );
   ground.rotation.x = Math.PI / 2;
-  ground.position.x = x ? x : 0;
-  ground.position.y = y ? y : -3;
-  ground.position.z = z ? z : -2;
+  ground.position.x = x;
+  ground.position.y = y;
+  ground.position.z = z;
   ground.receiveShadow = true;
   return ground;
 };

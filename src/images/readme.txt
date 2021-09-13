@@ -1,17 +1,20 @@
-This HDRI sIBL set is free for your use.
+Author
+======
 
-In our online store you can find many other bundled together with their high resolution source hdr files.
-With these you can do your own tonemapping and have even greater quality.
+This is the work of Emil Persson, aka Humus.
+http://www.humus.name
+humus@comhem.se
 
-Besides those HDRI skies we also have a lot of super high resolution textures.
 
-Weblinks:
-http://www.hdri-hub.com/hdrishop
-http://www.hdri-hub.com/hdrishop/freesamples
-https://www.facebook.com/hdrihub
 
-You can contact us anytime at info@hdri-hub.com
+Legal stuff
+===========
 
-With regards
-
-Your HDRI Hub team
+This work is free and may be used by anyone for any purpose
+and may be distributed freely to anyone using any distribution
+media or distribution method as long as this file is included.
+Distribution without this file is allowed if it's distributed
+with free non-commercial software; however, fair credit of the
+original author is expected.
+Any commercial distribution of this software requires the written
+approval of Emil Persson.
