@@ -118,23 +118,47 @@ function updateTrail() {
     utils.createArrow(point.position.clone(), normal, 0.6, 0.04, "white"),
     utils.createArrow(point.position.clone(), tangent, 0.4, 0.02, "yellow")
   );
+  tangentsAndNormals.children[1].add(
+    utils.createText(
+      "v",
+      tangentsAndNormals.children[1].children[1].position.clone().setY(0.55),
+      0.24,
+      "yellow"
+    )
+  );
+  tangentsAndNormals.children[0].add(
+    utils.createText(
+      "F",
+      tangentsAndNormals.children[0].children[1].position.clone().setZ(0.15),
+      0.24,
+      "white"
+    )
+  );
 }
 
 let theta = 0;
+let previousFrame = null;
 function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  if (isRunning) {
-    if (point.position.x >= 4) {
-      point.reset();
-    } else {
-      point.behaviour();
+  requestAnimationFrame((t) => {
+    if (previousFrame === null) {
+      previousFrame = t;
     }
-  }
-  renderer.render(scene, camera);
+    animate();
+
+    controls.update();
+    if (isRunning) {
+      if (point.position.x >= 4) {
+        point.reset();
+      } else {
+        point.behaviour();
+      }
+    }
+    renderer.render(scene, camera);
+  });
 }
 
 function init() {
+  document.body.style.backgroundColor = "black";
   pane = new Pane();
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(

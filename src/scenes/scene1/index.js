@@ -42,7 +42,7 @@ export const renderScene = (graphContainer) => {
   dlight.position.set(0, 10, 10);
   dlight.castShadow = true;
 
-  const ground = utils.ground(15, 15, 0, -7, -7);
+  const ground = utils.ground(50, 50, 0, -7, -7);
   scene.add(ground);
 
   const mainPlane = new THREE.Mesh(
